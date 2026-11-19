@@ -2,32 +2,181 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Хайрын захидал ❤️</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #fff1f3;
-      color: #4a2630;
-      text-align: center;
-    }
-    .container {
-      padding: 80px 20px;
-    }
-    h1 {
-      font-size: 36px;
-    }
-    p {
-      font-size: 18px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Love QR ❤️</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff1f3;color:#492b35;font-family:Arial,sans-serif}
+main{max-width:650px;margin:35px auto;padding:25px}
+.card{background:white;padding:25px;border-radius:20px;box-shadow:0 5px 25px #00000010}
+h1{text-align:center;color:#bd5475}
+input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border:1px solid #ead5dc;border-radius:10px;font-size:16px}
+textarea{min-height:130px}
+button{background:#bd5475;color:white;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#775c68}
+#result{overflow-wrap:anywhere;text-align:center;margin-top:20px}
+#qr{display:flex;justify-content:center;margin:15px}
+img{max-width:100%;border-radius:12px}
+.letter{text-align:center;white-space:pre-wrap;line-height:1.8;font-size:19px}
+.hidden{display:none}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Хайрын захидал ❤️</h1>
-    <p>Чамд зориулсан онцгой захидал.</p>
-  </div>
+<main>
+<section id="admin" class="card">
+<h1>Love QR ❤️</h1>
+<div id="login">
+<h3>Админ нэвтрэх</h3>
+<input id="email" type="email" placeholder="Имэйл">
+<input id="password" type="password" placeholder="Нууц үг">
+<button onclick="login()">Нэвтрэх</button>
+<p id="loginMsg"></p>
+</div>
+<div id="panel" class="hidden">
+<h3>Шинэ захидал үүсгэх</h3>
+<input id="recipient" placeholder="Хүлээн авагчийн нэр">
+<textarea id="message" placeholder="Хайрын захидлаа бичнэ үү"></textarea>
+<select id="template">
+<option value="template1">Загвар 1</option>
+<option value="template2">Загвар 2</option>
+</select>
+<label>Зураг оруулах</label>
+<input id="photo" type="file" accept="image/*">
+<button onclick="createLetter()">Захидал үүсгэх</button>
+<button class="secondary" onclick="logout()">Гарах</button>
+<p id="status"></p>
+<div id="result" class="hidden">
+<h3>Таны QR код</h3>
+<div id="qr"></div>
+<a id="download" download="love-qr.png">QR код татах</a>
+<p id="letterLink"></p>
+</div>
+</div>
+</section>
+
+<section id="publicLetter" class="card hidden">
+<h1 id="publicTitle">❤️</h1>
+<img id="publicImage" class="hidden">
+<p id="publicMessage" class="letter"></p>
+</section>
+</main>
+
+<script>
+// ЭНД ӨӨРИЙН SUPABASE МЭДЭЭЛЛИЙГ ОРУУЛНА
+const SUPABASE_URL = "https://xdthcgimcesqfipixeaw.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_DVVBOsCsXLhU5OjY83yVqA_NrNtmPc_";
+
+const db = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+async function login(){
+ const {data,error}=await db.auth.signInWithPassword({
+  email:document.getElementById("email").value,
+  password:document.getElementById("password").value
+ });
+ if(error){
+  document.getElementById("loginMsg").textContent=error.message;
+  return;
+ }
+ showAdmin();
+}
+
+async function showAdmin(){
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("panel").classList.remove("hidden");
+}
+
+async function logout(){
+ await db.auth.signOut();
+ location.reload();
+}
+
+async function createLetter(){
+ const status=document.getElementById("status");
+ status.textContent="Үүсгэж байна...";
+ try{
+  const {data:{user}}=await db.auth.getUser();
+  if(!user) throw new Error("Эхлээд нэвтэрнэ үү.");
+
+  const recipient=document.getElementById("recipient").value.trim();
+  const message=document.getElementById("message").value.trim();
+  const template=document.getElementById("template").value;
+  const file=document.getElementById("photo").files[0];
+
+  if(!recipient||!message) throw new Error("Нэр болон захидлаа оруулна уу.");
+
+  const slug=crypto.randomUUID().replaceAll("-","").slice(0,12);
+  let image_url=null;
+
+  if(file){
+   const ext=file.name.split(".").pop().toLowerCase();
+   const path=slug+"."+ext;
+   const {error:uploadError}=await db.storage.from("letter-images").upload(path,file);
+   if(uploadError) throw uploadError;
+   const {data:imageData}=db.storage.from("letter-images").getPublicUrl(path);
+   image_url=imageData.publicUrl;
+  }
+
+  const {error}=await db.from("letters").insert({
+   slug,recipient_name:recipient,message,template,image_url
+  });
+  if(error) throw error;
+
+  const url=location.origin+location.pathname+"?id="+slug;
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("qr").innerHTML="";
+  new QRCode(document.getElementById("qr"),{
+   text:url,width:200,height:200
+  });
+  setTimeout(()=>{
+   const canvas=document.querySelector("#qr canvas");
+   if(canvas) document.getElementById("download").href=canvas.toDataURL("image/png");
+  },300);
+  document.getElementById("letterLink").innerHTML=
+   `<a href="${url}" target="_blank">Захидлыг нээх</a>`;
+  status.textContent="Амжилттай үүслээ ❤️";
+ }catch(e){
+  status.textContent="Алдаа: "+e.message;
+ }
+}
+
+async function showLetter(slug){
+ document.getElementById("admin").classList.add("hidden");
+ document.getElementById("publicLetter").classList.remove("hidden");
+
+ const {data,error}=await db.rpc("get_letter",{p_slug:slug});
+ if(error||!data||!data.length){
+  document.getElementById("publicTitle").textContent="Захидал олдсонгүй";
+  return;
+ }
+ const letter=data[0];
+ document.getElementById("publicTitle").textContent=letter.recipient_name+" ❤️";
+ document.getElementById("publicMessage").textContent=letter.message;
+
+ if(letter.image_url){
+  const img=document.getElementById("publicImage");
+  img.src=letter.image_url;
+  img.classList.remove("hidden");
+ }
+
+ if(letter.template==="template2"){
+  document.getElementById("publicLetter").style.background="#fff7e9";
+  document.getElementById("publicTitle").style.color="#a66b35";
+ }
+}
+
+(async()=>{
+ const slug=new URLSearchParams(location.search).get("id");
+ if(slug){
+  await showLetter(slug);
+  return;
+ }
+ const {data:{session}}=await db.auth.getSession();
+ if(session) showAdmin();
+})();
+</script>
 </body>
 </html>
+

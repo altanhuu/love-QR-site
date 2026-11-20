@@ -5,29 +5,476 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Love QR ❤️</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Marck+Script&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#fff1f3;color:#492b35;font-family:Arial,sans-serif}
-main{max-width:650px;margin:35px auto;padding:25px}
-.card{background:white;padding:25px;border-radius:20px;box-shadow:0 5px 25px #00000010}
-h1{text-align:center;color:#bd5475}
-input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border:1px solid #ead5dc;border-radius:10px;font-size:16px}
+
+body{
+ margin:0;
+ background:#fff1f3;
+ color:#492b35;
+ font-family:Arial,sans-serif;
+}
+
+main.admin-main{
+ max-width:650px;
+ margin:35px auto;
+ padding:25px;
+}
+
+.card{
+ background:white;
+ padding:25px;
+ border-radius:20px;
+ box-shadow:0 5px 25px #00000010;
+}
+
+.admin-main h1{
+ text-align:center;
+ color:#bd5475;
+}
+
+input,textarea,select,button{
+ width:100%;
+ padding:13px;
+ margin:8px 0;
+ border:1px solid #ead5dc;
+ border-radius:10px;
+ font-size:16px;
+}
+
 textarea{min-height:130px}
-button{background:#bd5475;color:white;border:0;font-weight:bold;cursor:pointer}
+
+button{
+ background:#bd5475;
+ color:white;
+ border:0;
+ font-weight:bold;
+ cursor:pointer;
+}
+
 button.secondary{background:#775c68}
-#result{overflow-wrap:anywhere;text-align:center;margin-top:20px}
-#qr{display:flex;justify-content:center;margin:15px}
-img{max-width:100%;border-radius:12px}
-.letter{text-align:center;white-space:pre-wrap;line-height:1.8;font-size:19px}
-.hidden{display:none}
+
+#result{
+ overflow-wrap:anywhere;
+ text-align:center;
+ margin-top:20px;
+}
+
+#qr{
+ display:flex;
+ justify-content:center;
+ margin:15px;
+}
+
+#qr img{max-width:100%}
+
+.hidden{display:none!important}
+
+.public-old{
+ text-align:center;
+ white-space:pre-wrap;
+ line-height:1.8;
+ font-size:19px;
+}
+
+#publicImage{
+ max-width:100%;
+ border-radius:12px;
+}
+
+/* =================================
+   TEMPLATE 2 — ENVELOPE DESIGN
+================================= */
+
+#publicTemplate2{
+ --wine:#800020;
+ --deep:#3d000f;
+ --ivory:#FBF3E6;
+ --gold:#C9A24A;
+ --gold-hi:#F1DC9B;
+ --gold-lo:#8F6A16;
+ --script:'Marck Script',cursive;
+ --serif:'Cormorant Garamond',Georgia,serif;
+
+ position:fixed;
+ inset:0;
+ z-index:20;
+ overflow:auto;
+ color:var(--wine);
+ font-family:var(--serif);
+ background:
+  radial-gradient(circle at 20px 20px,rgba(201,162,74,.10) 1.2px,transparent 1.8px) 0 0/40px 40px,
+  radial-gradient(ellipse 90% 60% at 50% 0,#7d0a2a 0,#4b0014 50%,#26000a 100%);
+}
+
+#publicTemplate2 *{
+ box-sizing:border-box;
+}
+
+#publicTemplate2 .sparks{
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ z-index:0;
+}
+
+#publicTemplate2 .sparks i{
+ position:absolute;
+ border-radius:50%;
+ background:radial-gradient(circle,var(--gold-hi),transparent 70%);
+ opacity:0;
+ animation:tw 4s ease-in-out infinite;
+}
+
+@keyframes tw{
+ 0%,100%{opacity:0;transform:scale(.4)}
+ 50%{opacity:.9;transform:scale(1)}
+}
+
+#publicTemplate2 .stage{
+ width:100%;
+ max-width:460px;
+ min-height:100%;
+ margin:auto;
+ padding:24px 20px 48px;
+ position:relative;
+}
+
+#publicTemplate2 .stage>*{
+ position:relative;
+ z-index:1;
+}
+
+/* Intro */
+
+#publicTemplate2 .intro{
+ text-align:center;
+ margin-top:9vh;
+ transition:opacity .6s ease;
+}
+
+#publicTemplate2 .eyebrow{
+ display:block;
+ font-size:13px;
+ letter-spacing:.42em;
+ text-transform:uppercase;
+ color:var(--gold);
+ padding-left:.42em;
+}
+
+#publicTemplate2 .orn{
+ display:block;
+ width:150px;
+ height:14px;
+ margin:12px auto 0;
+}
+
+#publicTemplate2 .envelope{
+ display:block;
+ margin:34px auto 0;
+ width:min(88vw,360px);
+ aspect-ratio:1.42;
+ position:relative;
+ background:none;
+ border:0;
+ padding:0;
+ cursor:pointer;
+ perspective:1000px;
+ font:inherit;
+ color:inherit;
+ transition:opacity .7s ease .5s,transform .7s ease .5s;
+}
+
+#publicTemplate2 .env-body{
+ position:absolute;
+ inset:0;
+ border-radius:6px;
+ background:linear-gradient(155deg,#7a0a2a,#4a0014);
+ box-shadow:0 30px 60px -18px rgba(0,0,0,.8),0 0 0 1px rgba(201,162,74,.45);
+ outline:1px solid rgba(201,162,74,.55);
+ outline-offset:-9px;
+}
+
+#publicTemplate2 .env-body::before,
+#publicTemplate2 .env-body::after{
+ content:"";
+ position:absolute;
+ top:0;
+ bottom:0;
+ width:52%;
+}
+
+#publicTemplate2 .env-body::before{
+ left:0;
+ background:linear-gradient(100deg,#5e0019,#7e0f2e);
+ clip-path:polygon(0 0,100% 55%,0 100%);
+}
+
+#publicTemplate2 .env-body::after{
+ right:0;
+ background:linear-gradient(260deg,#5e0019,#7e0f2e);
+ clip-path:polygon(100% 0,0 55%,100% 100%);
+}
+
+#publicTemplate2 .flap{
+ position:absolute;
+ left:0;
+ right:0;
+ top:0;
+ height:60%;
+ z-index:3;
+ background:linear-gradient(180deg,#96123a,#6f0b26);
+ clip-path:polygon(0 0,100% 0,50% 100%);
+ transform-origin:top;
+ transition:transform .8s cubic-bezier(.5,0,.2,1),z-index 0s .4s;
+ filter:drop-shadow(0 2px 0 rgba(201,162,74,.8));
+}
+
+#publicTemplate2 .seal{
+ position:absolute;
+ left:50%;
+ top:41%;
+ width:70px;
+ height:70px;
+ margin:-35px 0 0 -35px;
+ z-index:4;
+ display:grid;
+ place-items:center;
+ border-radius:50%;
+ background:radial-gradient(circle at 32% 28%,var(--gold-hi),var(--gold) 50%,var(--gold-lo));
+ box-shadow:0 6px 14px rgba(0,0,0,.6),inset 0 -4px 8px rgba(90,60,0,.45);
+ transition:opacity .3s ease,transform .5s ease;
+}
+
+#publicTemplate2 .seal::before{
+ content:"";
+ position:absolute;
+ inset:7px;
+ border-radius:50%;
+ border:1px solid rgba(90,50,0,.55);
+}
+
+#publicTemplate2 .seal svg{
+ width:28px;
+ height:28px;
+ fill:#6b0019;
+}
+
+#publicTemplate2 .hint{
+ display:block;
+ margin-top:34px;
+ font-family:var(--script);
+ font-size:28px;
+ color:var(--gold-hi);
+ animation:breathe 2.8s ease-in-out infinite;
+ text-shadow:0 0 18px rgba(201,162,74,.5);
+}
+
+@keyframes breathe{
+ 50%{transform:translateY(-4px);opacity:.75}
+}
+
+#publicTemplate2 .envelope:focus-visible{
+ outline:2px solid var(--gold-hi);
+ outline-offset:10px;
+ border-radius:10px;
+}
+
+#publicTemplate2 .opened .flap{
+ transform:rotateX(180deg);
+ z-index:1;
+}
+
+#publicTemplate2 .opened .seal{
+ opacity:0;
+ transform:scale(.4);
+}
+
+#publicTemplate2 .opened .intro{
+ opacity:0;
+ pointer-events:none;
+}
+
+#publicTemplate2 .opened .envelope{
+ opacity:0;
+ transform:translateY(40px);
+ pointer-events:none;
+}
+
+/* Letter */
+
+#publicTemplate2 .letter-sheet{
+ position:absolute;
+ left:20px;
+ right:20px;
+ top:24px;
+ visibility:hidden;
+ opacity:0;
+ transform:translateY(70px) scale(.97);
+ transition:
+  opacity 1s ease .9s,
+  transform 1s cubic-bezier(.2,.8,.2,1) .9s,
+  visibility 0s .9s;
+}
+
+#publicTemplate2 .opened .letter-sheet{
+ visibility:visible;
+ opacity:1;
+ transform:none;
+ position:relative;
+ left:0;
+ right:0;
+ top:0;
+}
+
+#publicTemplate2 .paper{
+ position:relative;
+ text-align:center;
+ padding:54px 30px 178px;
+ border-radius:4px;
+ background:
+  radial-gradient(ellipse 80% 30% at 50% 0,rgba(241,220,155,.35),transparent 70%),
+  radial-gradient(ellipse 70% 40% at 50% 100%,rgba(248,215,227,.55),transparent 70%),
+  var(--ivory);
+ box-shadow:0 40px 80px -20px rgba(0,0,0,.85),0 0 0 1px rgba(201,162,74,.9),0 0 40px rgba(201,162,74,.18);
+}
+
+#publicTemplate2 .paper::before,
+#publicTemplate2 .paper::after{
+ content:"";
+ position:absolute;
+ pointer-events:none;
+}
+
+#publicTemplate2 .paper::before{
+ inset:10px;
+ border:1.5px solid var(--gold);
+}
+
+#publicTemplate2 .paper::after{
+ inset:15px;
+ border:1px solid rgba(201,162,74,.5);
+}
+
+#publicTemplate2 .corner{
+ position:absolute;
+ width:44px;
+ height:44px;
+ z-index:2;
+}
+
+#publicTemplate2 .tl{top:5px;left:5px}
+#publicTemplate2 .tr{top:5px;right:5px;transform:scaleX(-1)}
+#publicTemplate2 .bl{bottom:5px;left:5px;transform:scaleY(-1)}
+#publicTemplate2 .br{bottom:5px;right:5px;transform:scale(-1,-1)}
+
+#publicTemplate2 .kicker{
+ font-size:12px;
+ letter-spacing:.4em;
+ text-transform:uppercase;
+ color:var(--gold-lo);
+ padding-left:.4em;
+ font-weight:600;
+}
+
+#publicTemplate2 .letter-heading{
+ font-family:var(--script);
+ font-weight:400;
+ font-size:clamp(44px,13.5vw,58px);
+ line-height:1.15;
+ margin:8px 0 0;
+ background:linear-gradient(100deg,var(--gold-lo) 0%,#d9b657 30%,#f6e6aa 48%,#c9a24a 62%,var(--gold-lo) 100%);
+ background-size:220% 100%;
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
+ animation:shine 6s ease-in-out infinite;
+}
+
+@keyframes shine{
+ 0%,100%{background-position:100% 0}
+ 50%{background-position:0 0}
+}
+
+#publicTemplate2 .div{
+ display:block;
+ width:62%;
+ max-width:210px;
+ height:14px;
+ margin:10px auto 26px;
+}
+
+#publicTemplate2 .msg p{
+ margin:0;
+ font-size:clamp(20px,5.6vw,23px);
+ line-height:1.55;
+ font-style:italic;
+ font-weight:500;
+ color:#6b0019;
+ overflow-wrap:anywhere;
+}
+
+#publicTemplate2 .msg .gem{
+ display:block;
+ width:9px;
+ height:9px;
+ margin:18px auto;
+ background:var(--gold);
+ transform:rotate(45deg);
+ opacity:.9;
+}
+
+#publicTemplate2 .emblem{
+ position:absolute;
+ left:50%;
+ bottom:30px;
+ width:118px;
+ margin-left:-59px;
+}
+
+#publicTemplate2 .reveal{opacity:0}
+
+#publicTemplate2 .opened .reveal{
+ animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards;
+ animation-delay:calc(1.6s + var(--i)*.28s);
+}
+
+@keyframes rise{
+ from{opacity:0;transform:translateY(14px)}
+ to{opacity:1;transform:none}
+}
+
+@media(max-width:380px){
+ #publicTemplate2 .paper{padding-left:23px;padding-right:23px}
+}
+
+@media(prefers-reduced-motion:reduce){
+ #publicTemplate2 *{
+  animation:none!important;
+  transition-duration:.01s!important;
+  transition-delay:0s!important;
+ }
+ #publicTemplate2 .reveal{opacity:1}
+}
 </style>
 </head>
+
 <body>
-<main>
+
+<!-- ADMIN PANEL -->
+<main class="admin-main">
 <section id="admin" class="card">
+
 <h1>Love QR ❤️</h1>
+
 <div id="login">
 <h3>Админ нэвтрэх</h3>
 <input id="email" type="email" placeholder="Имэйл">
@@ -35,19 +482,27 @@ img{max-width:100%;border-radius:12px}
 <button onclick="login()">Нэвтрэх</button>
 <p id="loginMsg"></p>
 </div>
+
 <div id="panel" class="hidden">
 <h3>Шинэ захидал үүсгэх</h3>
+
 <input id="recipient" placeholder="Хүлээн авагчийн нэр">
+
 <textarea id="message" placeholder="Хайрын захидлаа бичнэ үү"></textarea>
+
 <select id="template">
 <option value="template1">Загвар 1</option>
-<option value="template2">Загвар 2</option>
+<option value="template2">Загвар 2 — Нууц дугтуй</option>
 </select>
+
 <label>Зураг оруулах</label>
 <input id="photo" type="file" accept="image/*">
+
 <button onclick="createLetter()">Захидал үүсгэх</button>
 <button class="secondary" onclick="logout()">Гарах</button>
+
 <p id="status"></p>
+
 <div id="result" class="hidden">
 <h3>Таны QR код</h3>
 <div id="qr"></div>
@@ -55,37 +510,120 @@ img{max-width:100%;border-radius:12px}
 <p id="letterLink"></p>
 </div>
 </div>
-</section>
 
-<section id="publicLetter" class="card hidden">
-<h1 id="publicTitle">❤️</h1>
-<img id="publicImage" class="hidden">
-<p id="publicMessage" class="letter"></p>
 </section>
 </main>
 
-<script>
-// ЭНД ӨӨРИЙН SUPABASE МЭДЭЭЛЛИЙГ ОРУУЛНА
+<!-- TEMPLATE 1 PUBLIC LETTER -->
+<section id="publicLetter" class="card hidden" style="max-width:650px;margin:35px auto;padding:25px">
+<h1 id="publicTitle">❤️</h1>
+<img id="publicImage" class="hidden" alt="Захидлын зураг">
+<p id="publicMessage" class="public-old"></p>
+</section>
 
+<!-- TEMPLATE 2 PUBLIC LETTER -->
+<section id="publicTemplate2" class="hidden">
+
+<div class="sparks" id="sparks"></div>
+
+<main class="stage" id="stage">
+
+<div class="intro">
+<span class="eyebrow">A MESSAGE FOR YOU</span>
+
+<svg class="orn" viewBox="0 0 150 14" aria-hidden="true">
+<path d="M0 7 H55 M95 7 H150 M65 7 Q75 -2 85 7 Q75 16 65 7Z"
+ fill="none" stroke="#C9A24A" stroke-width="1"/>
+<circle cx="75" cy="7" r="2" fill="#F1DC9B"/>
+</svg>
+
+<button class="envelope" id="env" aria-label="Дугтуйг нээх">
+<div class="env-body"></div>
+<div class="flap"></div>
+<div class="seal">
+<svg viewBox="0 0 24 24" aria-hidden="true">
+<path d="M12 21s-9-5.6-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.4-9 12-9 12z"/>
+</svg>
+</div>
+</button>
+
+<span class="hint">Нээхийн тулд товшино уу...</span>
+</div>
+
+<article class="letter-sheet">
+<div class="paper">
+
+<svg class="corner tl" viewBox="0 0 44 44" aria-hidden="true">
+<path d="M4 40V4h36 M4 18Q18 18 18 4 M4 28Q28 28 28 4"
+ fill="none" stroke="#C9A24A" stroke-width="1.2"/>
+</svg>
+<svg class="corner tr" viewBox="0 0 44 44" aria-hidden="true">
+<path d="M4 40V4h36 M4 18Q18 18 18 4 M4 28Q28 28 28 4"
+ fill="none" stroke="#C9A24A" stroke-width="1.2"/>
+</svg>
+<svg class="corner bl" viewBox="0 0 44 44" aria-hidden="true">
+<path d="M4 40V4h36 M4 18Q18 18 18 4 M4 28Q28 28 28 4"
+ fill="none" stroke="#C9A24A" stroke-width="1.2"/>
+</svg>
+<svg class="corner br" viewBox="0 0 44 44" aria-hidden="true">
+<path d="M4 40V4h36 M4 18Q18 18 18 4 M4 28Q28 28 28 4"
+ fill="none" stroke="#C9A24A" stroke-width="1.2"/>
+</svg>
+
+<div class="kicker reveal" id="recipientName" style="--i:0">Зөвхөн танд</div>
+
+<h1 class="letter-heading reveal" id="letterHeading" style="--i:1">
+Нууц мессеж
+</h1>
+
+<svg class="div reveal" style="--i:2" viewBox="0 0 210 14" aria-hidden="true">
+<path d="M0 7H83 M127 7H210 M92 7Q105 -3 118 7Q105 17 92 7Z"
+ fill="none" stroke="#C9A24A" stroke-width="1"/>
+<circle cx="105" cy="7" r="2" fill="#C9A24A"/>
+</svg>
+
+<div class="msg" id="letterMessage"></div>
+
+<svg class="emblem reveal" style="--i:8" viewBox="0 0 118 80" aria-hidden="true">
+<path d="M59 67C42 55 18 43 18 24C18 5 43 2 59 22C75 2 100 5 100 24C100 43 76 55 59 67Z"
+ fill="none" stroke="#C9A24A" stroke-width="1.5"/>
+<path d="M59 22V67 M42 38Q59 29 76 38 M35 49Q59 39 83 49"
+ fill="none" stroke="#C9A24A" stroke-width="1"/>
+<circle cx="59" cy="22" r="3" fill="#C9A24A"/>
+</svg>
+
+</div>
+</article>
+
+</main>
+</section>
+
+<script>
+// SUPABASE
 const SUPABASE_URL = "https://xdthcgimcesqfipixeaw.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_DVVBOsCsXLhU5OjY83yVqA_NrNtmPc_";
+// ЭНД ХУУЧИН КОДОНД БАЙГАА ӨӨРИЙН PUBLISHABLE KEY-ГЭЭ ХУУЛЖ ТАВИНА
+const SUPABASE_KEY = "1339d4a8-16c4-4438-9345-a7bcaf753ada";
 
 const db = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+
+// ADMIN LOGIN
 async function login(){
  const {data,error}=await db.auth.signInWithPassword({
   email:document.getElementById("email").value,
   password:document.getElementById("password").value
  });
+
  if(error){
   document.getElementById("loginMsg").textContent=error.message;
   return;
  }
+
  showAdmin();
 }
 
-async function showAdmin(){
+function showAdmin(){
  document.getElementById("login").classList.add("hidden");
  document.getElementById("panel").classList.remove("hidden");
 }
@@ -95,11 +633,15 @@ async function logout(){
  location.reload();
 }
 
+
+// CREATE LETTER
 async function createLetter(){
  const status=document.getElementById("status");
  status.textContent="Үүсгэж байна...";
+
  try{
   const {data:{user}}=await db.auth.getUser();
+
   if(!user) throw new Error("Эхлээд нэвтэрнэ үү.");
 
   const recipient=document.getElementById("recipient").value.trim();
@@ -107,7 +649,9 @@ async function createLetter(){
   const template=document.getElementById("template").value;
   const file=document.getElementById("photo").files[0];
 
-  if(!recipient||!message) throw new Error("Нэр болон захидлаа оруулна уу.");
+  if(!recipient||!message){
+   throw new Error("Нэр болон захидлаа оруулна уу.");
+  }
 
   const slug=crypto.randomUUID().replaceAll("-","").slice(0,12);
   let image_url=null;
@@ -115,70 +659,184 @@ async function createLetter(){
   if(file){
    const ext=file.name.split(".").pop().toLowerCase();
    const path=slug+"."+ext;
-   const {error:uploadError}=await db.storage.from("letter-images").upload(path,file);
+
+   const {error:uploadError}=await db.storage
+    .from("letter-images")
+    .upload(path,file);
+
    if(uploadError) throw uploadError;
-   const {data:imageData}=db.storage.from("letter-images").getPublicUrl(path);
+
+   const {data:imageData}=db.storage
+    .from("letter-images")
+    .getPublicUrl(path);
+
    image_url=imageData.publicUrl;
   }
 
   const {error}=await db.from("letters").insert({
-   slug,recipient_name:recipient,message,template,image_url
+   slug,
+   recipient_name:recipient,
+   message,
+   template,
+   image_url
   });
+
   if(error) throw error;
 
   const url=location.origin+location.pathname+"?id="+slug;
+
   document.getElementById("result").classList.remove("hidden");
   document.getElementById("qr").innerHTML="";
+
   new QRCode(document.getElementById("qr"),{
-   text:url,width:200,height:200
+   text:url,
+   width:200,
+   height:200
   });
+
   setTimeout(()=>{
    const canvas=document.querySelector("#qr canvas");
-   if(canvas) document.getElementById("download").href=canvas.toDataURL("image/png");
-  },300);
-  document.getElementById("letterLink").innerHTML=
-   `<a href="${url}" target="_blank">Захидлыг нээх</a>`;
+   const img=document.querySelector("#qr img");
+
+   if(canvas){
+    document.getElementById("download").href=canvas.toDataURL("image/png");
+   }else if(img){
+    document.getElementById("download").href=img.src;
+   }
+  },400);
+
+  const link=document.createElement("a");
+  link.href=url;
+  link.target="_blank";
+  link.rel="noopener";
+  link.textContent="Захидлыг нээх";
+
+  const linkBox=document.getElementById("letterLink");
+  linkBox.innerHTML="";
+  linkBox.appendChild(link);
+
   status.textContent="Амжилттай үүслээ ❤️";
+
  }catch(e){
   status.textContent="Алдаа: "+e.message;
  }
 }
 
+
+// PUBLIC LETTER
 async function showLetter(slug){
- document.getElementById("admin").classList.add("hidden");
- document.getElementById("publicLetter").classList.remove("hidden");
+
+ document.querySelector(".admin-main").classList.add("hidden");
 
  const {data,error}=await db.rpc("get_letter",{p_slug:slug});
+
  if(error||!data||!data.length){
+  document.getElementById("publicLetter").classList.remove("hidden");
   document.getElementById("publicTitle").textContent="Захидал олдсонгүй";
   return;
  }
+
  const letter=data[0];
- document.getElementById("publicTitle").textContent=letter.recipient_name+" ❤️";
- document.getElementById("publicMessage").textContent=letter.message;
+
+ // TEMPLATE 2
+ if(letter.template==="template2"){
+
+  document.body.classList.add("template2-mode");
+
+  const page=document.getElementById("publicTemplate2");
+  page.classList.remove("hidden");
+
+  document.getElementById("recipientName").textContent=
+   letter.recipient_name;
+
+  document.getElementById("letterHeading").textContent=
+   "Нууц мессеж";
+
+  const messageBox=document.getElementById("letterMessage");
+  messageBox.innerHTML="";
+
+  const lines=letter.message.split(/\r?\n/);
+  let revealIndex=3;
+
+  lines.forEach((line,index)=>{
+   if(line.trim()===""){
+    const gem=document.createElement("i");
+    gem.className="gem reveal";
+    gem.style.setProperty("--i",revealIndex++);
+    messageBox.appendChild(gem);
+   }else{
+    const p=document.createElement("p");
+    p.className="reveal";
+    p.style.setProperty("--i",revealIndex++);
+    p.textContent=line;
+    messageBox.appendChild(p);
+   }
+  });
+
+  createSparks();
+
+  document.getElementById("env").addEventListener("click",()=>{
+   document.getElementById("stage").classList.add("opened");
+  });
+
+  return;
+ }
+
+ // TEMPLATE 1
+ document.getElementById("publicLetter").classList.remove("hidden");
+
+ document.getElementById("publicTitle").textContent=
+  letter.recipient_name+" ❤️";
+
+ document.getElementById("publicMessage").textContent=
+  letter.message;
 
  if(letter.image_url){
   const img=document.getElementById("publicImage");
   img.src=letter.image_url;
   img.classList.remove("hidden");
  }
+}
 
- if(letter.template==="template2"){
-  document.getElementById("publicLetter").style.background="#fff7e9";
-  document.getElementById("publicTitle").style.color="#a66b35";
+
+// SPARKLES
+function createSparks(){
+ const box=document.getElementById("sparks");
+
+ for(let i=0;i<35;i++){
+  const spark=document.createElement("i");
+  const size=2+Math.random()*4;
+
+  spark.style.width=size+"px";
+  spark.style.height=size+"px";
+  spark.style.left=Math.random()*100+"%";
+  spark.style.top=Math.random()*100+"%";
+  spark.style.animationDelay=(Math.random()*4)+"s";
+  spark.style.animationDuration=(3+Math.random()*4)+"s";
+
+  box.appendChild(spark);
  }
 }
 
+
+// PAGE START
 (async()=>{
  const slug=new URLSearchParams(location.search).get("id");
+
  if(slug){
   await showLetter(slug);
   return;
  }
+
  const {data:{session}}=await db.auth.getSession();
- if(session) showAdmin();
+
+ if(session){
+  showAdmin();
+ }
 })();
 </script>
+
 </body>
 </html>
+
 
